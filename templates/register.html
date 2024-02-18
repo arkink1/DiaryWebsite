@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary - Register
+{% endblock %}
+
+{% block body %}
+
+    <h1 id="title" style="text-align:center;padding:20px;">Register</h1>
+
+    <div style="text-align:center;">
+        <a href="{{ url_for('login') }}" style>Already have an account? Login.</a>
+    </div>
+
+    <div class="container">
+        <form id="register" action="{{ url_for('register') }}" method="post">
+            {% if info[0] == 'None' %}
+                <div class="form-group">
+                    <label>Email address</label>
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required maxlength="320">
+                    <small id="emailHelp" class="form-text text-muted">Your email will be kept a secret.</small>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" class="form-control" name="username" placeholder="Enter a username" required maxlength="25">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" id="pass1" name="password" placeholder="Enter a secure password" required>
+                </div>
+                <div class="form-group">
+                    <label>Re-enter password</label>
+                    <input type="password" class="form-control" id="pass2" name="password2" placeholder="Confirm your password" required>
+                </div>
+                <div class="form-group" style="text-align:center">
+                    <button type="submit" class="btn btn-light">Register</button>
+                </div>
+            {% else %}
+                {% if info[0] == 'email' %}
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter your email" required>
+                        <small id="emailHelp" class="form-text text-muted">Your email will be kept a secret.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" value="{{ info[1] }}" name="username" placeholder="Enter a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="pass1" name="password" placeholder="Enter a secure password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Re-enter password</label>
+                        <input type="password" class="form-control" id="pass2" name="password2" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-group" style="text-align:center">
+                        <button type="submit" class="btn btn-light">Register</button>
+                    </div>
+                {% elif info[0] == 'username' %}
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="email" class="form-control" value="{{ info[1] }}" name="email" id="email" placeholder="Enter your email" required>
+                        <small id="emailHelp" class="form-text text-muted">Your email will be kept a secret.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" name="username" placeholder="Enter a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="pass1" name="password" placeholder="Enter a secure password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Re-enter password</label>
+                        <input type="password" class="form-control" id="pass2" name="password2" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-group" style="text-align:center">
+                        <button type="submit" class="btn btn-light">Register</button>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        <label>Email address</label>
+                        <input type="email" class="form-control" value="{{ info[1] }}" name="email" id="email" placeholder="Enter your email" required>
+                        <small id="emailHelp" class="form-text text-muted">Your email will be kept a secret.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" value="{{ info[2] }}" name="username" placeholder="Enter a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="pass1" name="password" placeholder="Enter a secure password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Re-enter password</label>
+                        <input type="password" class="form-control" id="pass2" name="password2" placeholder="Confirm your password" required>
+                    </div>
+                    <div class="form-group" style="text-align:center">
+                        <button type="submit" class="btn btn-light">Register</button>
+                    </div>
+                {% endif %}
+
+            {% endif %}
+        </form>
+    </div>
+
+{% endblock %}

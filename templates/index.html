@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary
+{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align:center;padding:30px;">Dear Diary...</h1>
+    <h3 id="loginorregister" style="text-align:center;"></h3>
+    
+    <div style="padding:20px;text-align:center">
+        <a class="btn btn-light btn-lg "href="{{ url_for('login') }}">Login</a>
+        <a class="btn btn-light btn-lg" href="{{ url_for('register') }}">Register</a>
+    </div>
+
+{% endblock %}

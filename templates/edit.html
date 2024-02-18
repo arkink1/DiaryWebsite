@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary - Edit Post
+{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align:center;padding-top:20px;padding-bottom:0px">Edit post</h1>
+    <div style="text-align:center">
+        <a href="/diary/{{ post[5] }}">Back to diary</a>
+    </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+  
+            <div style="text-align:center">
+                <form action="{{ url_for('editPost') }}" method="POST">
+                    <p>Once this button is clicked, the post will be deleted forever</p>
+                    <button type="submit" name="doSomething" value="deletePost,{{ post[0] }}" class="btn btn-danger">Delete</button>
+                </form>
+                <button id="closeModal" type="button" class="close" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div style="padding:20px">
+
+        <form action="{{ url_for('editPost') }}" method="POST" style="text-align:center">
+            {% if post[3] == 'public' %}
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="privacy" id="inlineRadio1" required value="private">
+                    <label class="form-check-label" for="inlineRadio1">Private (only you can see this entry)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="privacy" id="inlineRadio2" checked required value="public">
+                    <label class="form-check-label" for="inlineRadio2">Public (anyone can see this entry)</label>
+                </div>
+            {% else %}
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="privacy" id="inlineRadio1" checked required value="private">
+                    <label class="form-check-label" for="inlineRadio1">Private (only you can see this entry)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="privacy" id="inlineRadio2" required value="public">
+                    <label class="form-check-label" for="inlineRadio2">Public (anyone can see this entry)</label>
+                </div>
+            {% endif %}
+            <div style="text-align:center;padding:10px;">
+                <button class="btn btn-primary" type="submit" name="doSomething" value="{{ post[0] }}">Change</button>
+            </div>
+        </form>
+
+        <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+
+            <a style="font-size:20px" href="/diary/{{ post[5] }}">{{ post[5] }}</a>
+            <p>{{ post[2] }}</p>
+
+            <h4>{{ post[6] }}</h4>
+            <p style="white-space:pre-wrap">{{ post[1] }}</p>
+
+            {% if post[4] != [''] %}
+                <div style="text-align:center;padding:10px">
+                    {% for img in post[4] %}
+                        <img class="postImgs" src="static/{{ post[5] }}/{{ post[2] }}/{{ img }}" style="padding:3px" height="180px">
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="text-align:center;padding:30px;padding-bottom:100px">
+            <button id="deleteBtn" name="doSomething" value="{{ post[0] }}" class="btn btn-danger">Delete post</button>
+        </div>
+        
+    </div>
+
+    <script>
+
+    var modal = document.getElementById("myModal");
+
+    document.querySelector("#deleteBtn").onclick = () => {
+        modal.style.display = 'block';
+    }
+
+    document.querySelector("#closeModal").onclick = () => {
+        modal.style.display = 'none';
+    }
+
+    </script>
+
+{% endblock %}

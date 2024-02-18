@@ -1,0 +1,193 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary - {{ username }}'s Diary
+{% endblock %}
+
+{% block body %}
+
+    {% if username == session.get('username') %}
+        <h1 style="text-align:center;padding-top:20px;padding-bottom:30px">My Diary</h1>
+    {% else %}
+        <h1 style="text-align:center;padding-top:20px;padding-bottom:30px">{{ username }}'s Diary</h1>
+    {% endif %}
+
+    <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+        <form action="/diary/{{ username }}" method="POST" style="padding:20px;text-align:center">
+            <div class="form-row align-items-center">
+                <div class="col-lg-11 align-top">
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="titleSearch" placeholder="Search for an entry by its title or date" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <button type="submit" name="searchBtn" value="{{ username }}" class="btn btn-secondary">Search</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div style="padding-bottom:100px;padding-top:20px">
+        {% if search %}
+            <div style="text-align:center">
+                <p style="font-size:20px">Search results for '{{ search }}'</p>
+                <a href="/diary/{{ username }}">Clear search</a>
+            </div>
+            {% if posts %}
+                {% for post in posts %}
+                    <div style="padding:20px" id="postDivSearch">
+                        <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+
+                            {% if session.get('username') == post[5] %}
+                                <p style="font-size:20px">{{ post[5] }}</p><div style="text-align:center;"><form action="{{ url_for('edit') }}" method="POST"><button style="float:right;text-align:center;height:37px;width:auto" name="postId" value="{{ post[0] }}" class="btn btn-sm btn-secondary">Edit</a></form></div>
+                            {% else %}
+                                <p style="font-size:20px">{{ post[5] }}</p>
+                            {% endif %}
+                            <p>{{ post[2] }}</p>
+
+                            <h4>{{ post[6] }}</h4>
+                            <p style="white-space:pre-wrap;">{{ post[1] }}</p>
+
+                            {% if post[4] != [''] %}
+                                <div style="text-align:center;padding:10px">
+                                    {% for img in post[4] %}
+                                        <img class="postImgs" style="padding:3px" src="/static/{{ post[5] }}/{{ post[2] }}/{{ img }}" height="180px">
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div id="bottomDiv" style="text-align:center;padding-bottom:100px">
+                    {% if postCount <= 1 %}
+                        <h3>No more results</h3>
+                        <button id="scrollToTop" onclick="document.documentElement.scrollTop = 0" class="btn btn-secondary">Go to the top</h3>
+                    {% else %}
+                        <button name="pagination" value="{{ lastPostId }}" id="seeMore" class="btn btn-secondary">See more</button>
+                    {% endif %}
+                </div>
+            {% else %}
+                <h3 style="text-align:center">No posts matching the search query</h3>
+            {% endif %}
+        {% else %}
+            {% if posts %}
+                {% for post in posts %}
+                    <div style="padding:20px" id="postDivNoSearch">
+                        <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+
+                            {% if session.get('username') == post[5] %}
+                                <p style="font-size:20px">{{ post[5] }}</p><div style="text-align:center;"><form action="{{ url_for('edit') }}" method="POST"><button style="float:right;text-align:center;height:37px;width:auto" name="postId" value="{{ post[0] }}" class="btn btn-sm btn-secondary">Edit</a></form></div>
+                            {% else %}
+                                <p style="font-size:20px">{{ post[5] }}</p>
+                            {% endif %}
+                            <p>{{ post[2] }}</p>
+
+                            <h4>{{ post[6] }}</h4>
+                            <p style="white-space:pre-wrap;">{{ post[1] }}</p>
+
+                            {% if post[4] != [''] %}
+                                <div style="text-align:center;padding:10px">
+                                    {% for img in post[4] %}
+                                        <img class="postImgs" style="padding:3px" src="/static/{{ post[5] }}/{{ post[2] }}/{{ img }}" height="180px">
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                <div id="bottomDiv" style="text-align:center;padding-bottom:100px">
+                    {% if postCount <= 5 %}
+                        <h3>You're all caught up!</h3>
+                        <button id="scrollToTop" onclick="document.documentElement.scrollTop = 0" class="btn btn-secondary">Go to the top</h3>
+                    {% else %}
+                        <button name="pagination" value="{{ lastPostId }}" id="seeMore" class="btn btn-secondary">See more</button>
+                    {% endif %}
+                </div>
+            {% else %}
+                {% if username == session.get("username") %}
+                    <h3 style="text-align:center">You have no entries. Write one <a href="{{ url_for('write') }}">here</a></h3>
+                {% else %}
+                    <h3 style="text-align:center;">This user has no public posts</h3>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+
+        var socket = io.connect(location.protocol+'//'+document.domain+':'+location.port);
+
+        document.querySelector("#seeMore").onclick = () => {
+            var lastPostId = document.querySelector("#seeMore").value;
+            socket.emit('getMorePostsDiary', {'lastPostId':lastPostId})
+        }
+
+        socket.on('newPostsDiary', data => {
+            const posts = data['posts']
+            if (data['lastPostId']) {
+                document.querySelector("#seeMore").setAttribute('value', data['lastPostId'])
+            }
+            for (const post of posts) {
+                newPosts(post, data['currentUser'], data['search']);
+            }
+            if (data['numOfPostsLeft'] <= 5) {
+                document.querySelector("#bottomDiv").innerHTML = "<h3>You're all caught up!</h3>"
+                document.querySelector("#bottomDiv").innerHTML += `<button id="scrollToTop" onclick="document.documentElement.scrollTop = 0" class="btn btn-secondary">Go to the top</h3>`
+            }
+            socket.emit('showedNewPost')
+        })
+
+        socket.on('newSeeMoreDiary', data => {
+            document.querySelector("#seeMoreDiary").onclick = () => {
+                var lastPostId = document.querySelector("#seeMore").value;
+                socket.emit('getMorePosts', {'lastPostId':lastPostId})
+            }
+        })
+
+        function newPosts(post, currentUser, search) {
+            outermostDiv = document.createElement('div');
+            outermostDiv.style.padding = '20px';
+            containerDiv = document.createElement('div');
+            containerDiv.setAttribute('id', 'containerDiv')
+            containerDiv.className = 'container';
+            containerDiv.style.background = '#f0f4f5';
+            containerDiv.style.padding = '20px';
+            containerDiv.style.border = '1px solid gray';
+            containerDiv.style.borderRadius = '10px';
+            containerDiv.style.display = 'flexbox';
+            containerDiv.style.boxShadow = '10px 10px 5px grey'
+            if (currentUser == post[5]) {
+                containerDiv.innerHTML += `<p style="font-size:20px">${post[5]}</p><div style="text-align:center;"><form action="{{ url_for('edit') }}" method="POST"><button style="float:right;text-align:center;height:37px;width:auto" name="postId" value="${post[0]}" class="btn btn-sm btn-secondary">Edit</a></form></div>`
+            }
+            else {
+                containerDiv.innerHTML += `<p style="font-size:20px">${post[5]}</p>`
+            }
+            containerDiv.innerHTML += `<p>${post[2]}</p>`
+            containerDiv.innerHTML += `<h4 style="padding-bottom:5px">${post[6]}</h4>`
+            containerDiv.innerHTML += `<p style="white-space:pre-wrap">${post[1]}</p>`
+            imgDiv = document.createElement('div');
+            if (post[4] != "") {
+                imgDiv.style.textAlign = 'center';
+                imgDiv.style.padding = '10px';
+                for (const img of post[4]) {
+                    imgDiv.innerHTML += `<img class="postImgs" src="/static/${post[5]}/${post[2]}/${img}" style="padding:3px" height="180px">`
+                }
+            }
+            else {
+                imgDiv.innerHTML += "<h3></h3>"
+            }
+            containerDiv.append(imgDiv)
+            outermostDiv.append(containerDiv)
+            if (search == true) {
+                document.querySelector("#postDivSearch").append(outermostDiv)
+            }
+            else {
+                document.querySelector("#postDivNoSearch").append(outermostDiv)
+            }
+        }
+
+    </script>
+
+{% endblock %}

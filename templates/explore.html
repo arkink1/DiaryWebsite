@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary - Explore
+{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align:center;padding-top:20px;padding-bottom:0px">Explore</h1>
+    <p style="text-align:center;padding-bottom:0px">Here you can see everyone's public entries</p>
+    <div style="text-align:center;">
+        <a class="btn btn-secondary" href="{{ url_for('explore') }}">Refresh</a>
+    </div>
+
+    <div id="biggestDiv" style="padding-bottom:20px;padding-top:20px">
+        <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+            <form action="/explore" method="POST" style="padding:20px;text-align:center">
+                <div class="form-row align-items-center">
+                    <div class="col-lg-11 align-top">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="userSearch" placeholder="Search for posts by username or date" required>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-secondary">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div style="text-align:center">
+                <a href="{{ url_for('write') }}" style="float:center" class="btn btn-secondary">Write an entry +</a>
+            </div>
+        </div>
+        {% if search %}
+            <div style="text-align:center;padding:15px">
+                <p style="font-size:20px">Search results for '{{ search }}'</p>
+                <a href="/explore">Clear search</a>
+            </div>
+            {% if posts %}
+                {% for post in posts %}
+                    <div style="padding:20px">
+                        <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+
+                            {% if session.get('username') == post[5] %}
+                                <a href="/diary/{{ post[5] }}" style="font-size:20px">{{ post[5] }}</a><div style="text-align:center;"><form action="{{ url_for('edit') }}" method="POST"><button style="float:right;text-align:center;height:37px;width:auto" name="postId" value="{{ post[0] }}" class="btn btn-sm btn-secondary">Edit</a></form></div>
+                            {% else %}
+                                <a href="/diary/{{ post[5] }}" style="font-size:20px">{{ post[5] }}</a>
+                            {% endif %}
+                            <p>{{ post[2] }}</p>
+
+                            <h4>{{ post[6] }}</h4>
+                            <p style="white-space:pre-wrap;">{{ post[1] }}</p>
+
+                            {% if post[4] != [''] %}
+                                <div style="text-align:center;padding:10px">
+                                    {% for img in post[4] %}
+                                        <img class="postImgs" style="padding:3px" src="/static/{{ post[5] }}/{{ post[2] }}/{{ img }}" height="180px">
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h3 style="text-align:center">No posts matching the search query</h3>
+            {% endif %}
+        {% else %}
+            {% for post in posts %}
+                <div style="padding:20px;">
+                    <div class="container" style="background-color:#f0f4f5;padding:20px;border: 1px solid gray;border-radius:10px;display:flexbox;box-shadow: 10px 10px 5px grey;">
+                        {% if session.get('username') == post[5] %}
+                            <a style="font-size:20px" href="/diary/{{ post[5] }}">{{ post[5] }}</a><div style="text-align:center;"><form action="{{ url_for('edit') }}" method="POST"><button style="float:right;text-align:center;height:37px;width:auto" name="postId" value="{{ post[0] }}" class="btn btn-sm btn-secondary">Edit</a></form></div>
+                        {% else %}
+                            <a style="font-size:20px" href="/diary/{{ post[5] }}">{{ post[5] }}</a>
+                        {% endif %}
+                        <p>{{ post[2] }}</p>
+
+                        <h4 style="padding-bottom:5px">{{ post[6] }}</h4>
+                        <p style="white-space:pre-wrap">{{ post[1] }}</p>
+
+                        {% if post[4] != [''] %}
+                            <div style="text-align:center;padding:10px">
+                                {% for img in post[4] %}
+                                    <img class="postImgs" src="static/{{ post[5] }}/{{ post[2] }}/{{ img }}" style="padding:3px" height="180px">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="bottomDiv" style="text-align:center;padding-bottom:100px">
+        {% if postCount <= 5 %}
+            <h3>You're all caught up!</h3>
+            <button id="scrollToTop" onclick="document.documentElement.scrollTop = 0" class="btn btn-secondary">Go to the top</h3>
+        {% else %}
+            <button name="pagination" value="{{ postId }}" id="seeMore" class="btn btn-secondary">See more</button>
+        {% endif %}
+    </div>
+    
+    <script>
+
+        var socket = io.connect(location.protocol+'//'+document.domain+':'+location.port);
+
+        document.querySelector("#seeMore").onclick = () => {
+            var lastPostId = document.querySelector("#seeMore").value;
+            socket.emit('getMorePosts', {'lastPostId':lastPostId})
+        }
+
+        socket.on('newPosts', data => {
+            const posts = data['posts']
+            if (data['lastPostId']) {
+                document.querySelector("#seeMore").setAttribute('value', data['lastPostId'])
+            }
+            for (const post of posts) {
+                newPosts(post, data['currentUser']);
+            }
+            if (data['numOfPostsLeft'] <= 5) {
+                document.querySelector("#bottomDiv").innerHTML = "<h3>You're all caught up!</h3>"
+                document.querySelector("#bottomDiv").innerHTML += `<button id="scrollToTop" onclick="document.documentElement.scrollTop = 0" class="btn btn-secondary">Go to the top</h3>`
+            }
+            socket.emit('showedNewPost')
+        })
+
+        socket.on('newSeeMore', data => {
+            document.querySelector("#seeMore").onclick = () => {
+                var lastPostId = document.querySelector("#seeMore").value;
+                socket.emit('getMorePosts', {'lastPostId':lastPostId})
+            }
+        })
+
+        function newPosts(post, currentUser) {
+            outermostDiv = document.createElement('div');
+            outermostDiv.style.padding = '20px';
+            containerDiv = document.createElement('div');
+            containerDiv.setAttribute('id', 'containerDiv')
+            containerDiv.className = 'container';
+            containerDiv.style.background = '#f0f4f5';
+            containerDiv.style.padding = '20px';
+            containerDiv.style.border = '1px solid gray';
+            containerDiv.style.borderRadius = '10px';
+            containerDiv.style.display = 'flexbox';
+            containerDiv.style.boxShadow = '10px 10px 5px grey'
+            if (currentUser == post[5]) {
+                containerDiv.innerHTML += `<a style="font-size:20px" href="/diary/${post[5]}">${post[5]}</a><div style="text-align:center;"><form action="{{ url_for('edit') }}" method="POST"><button style="float:right;text-align:center;height:37px;width:auto" name="postId" value="${post[0]}" class="btn btn-sm btn-secondary">Edit</a></form></div>`
+            }
+            else {
+                containerDiv.innerHTML += `<a style="font-size:20px" href="/diary/${post[5]}">${post[5]}</a>`
+            }
+            containerDiv.innerHTML += `<p>${post[2]}</p>`
+            containerDiv.innerHTML += `<h4 style="padding-bottom:5px">${post[6]}</h4>`
+            containerDiv.innerHTML += `<p style="white-space:pre-wrap">${post[1]}</p>`
+            imgDiv = document.createElement('div');
+            if (post[4] != "") {
+                imgDiv.style.textAlign = 'center';
+                imgDiv.style.padding = '10px';
+                for (const img of post[4]) {
+                    imgDiv.innerHTML += `<img class="postImgs" src="static/${post[5]}/${post[2]}/${img}" style="padding:3px" height="180px">`
+                }
+            }
+            else {
+                imgDiv.innerHTML += "<h3></h3>"
+            }
+            containerDiv.append(imgDiv)
+            outermostDiv.append(containerDiv)
+            document.querySelector("#biggestDiv").append(outermostDiv)
+        }
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary - Write
+{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align:center;padding-top:20px;padding-bottom:0px">Today's entry</h1>
+
+    <div class="container" style="text-align:center;padding:20px;padding-bottom:60px">
+        <form action="{{ url_for('write') }}" method="POST" enctype="multipart/form-data">
+
+            {% if content == True %}
+
+                <div class="form-group">
+                    <p style="text-align:left;font-size:20px">Add a title</p>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ info[2] }}" placeholder="Title (optional)">
+                </div>
+                <div class="form-group">
+                    <p style="text-align:left;font-size:20px">Write about your day here</p>
+                    <textarea class="form-control" id="content" name="content" placeholder="Today was a great day..." rows="9" required>{{ info[0] }}</textarea>
+                </div>
+                {% if info[3] == [''] %}
+                    <div class="form-group">
+                        Currently you haven't uploaded any photos
+                        <p style="text-align:left;font-size:20px">Upload photos (optional)</p>
+                        <input type="file" name="file" id="imgs" accept="image/*" class="form-control-file" multiple>
+                    </div>
+                {% else %}
+                    <div class="form-group">
+                        You have uploaded {{ info[4] }} photo(s) {{ info[3] }}. If you want to change the photos uploaded, you can upload the new ones.
+                        <p style="text-align:left;font-size:20px;padding-top:10px">Upload photos (optional)</p>
+                        <input type="file" name="file" id="imgs" accept="image/*" class="form-control-file" multiple>
+                    </div>
+                {% endif %}
+                {% if info[1] == 'private' %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="privacy" id="inlineRadio1" required checked value="private">
+                        <label class="form-check-label" id="private" for="inlineRadio1">Private (only you can see this entry)</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="privacy" id="inlineRadio2" required value="public">
+                        <label class="form-check-label" id="public" for="inlineRadio2">Public (anyone can see this entry)</label>
+                    </div>
+                {% else %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="privacy" id="inlineRadio1" required value="private">
+                        <label class="form-check-label" id="private" for="inlineRadio1">Private (only you can see this entry)</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="privacy" id="inlineRadio2" required checked value="public">
+                        <label class="form-check-label" id="public" for="inlineRadio2">Public (anyone can see this entry)</label>
+                    </div>
+                {% endif %}
+                <div class="form-group" style="padding:15px">
+                    <label style="font-weight:1000">*Note that entries can only be edited the day they are written*</label>
+                    <br>
+                    <button type="submit" name="submitBtn" value="{{ info[5] }}" class="btn btn-lg btn-primary">Post</button>
+                </div>
+
+            {% else %}
+
+                <div class="form-group">
+                    <p style="text-align:left;font-size:20px">Add a title</p>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Title (optional)">
+                </div>
+                <div class="form-group">
+                    <p style="text-align:left;font-size:20px">Write about your day here</p>
+                    <textarea class="form-control" id="content" name="content" placeholder="Today was a great day..." rows="9" required></textarea>
+                </div>
+                <div class="form-group">
+                    <p style="text-align:left;font-size:20px">Upload photos (optional)</p>
+                    <input type="file" name="file" id="imgs" accept="image/*" class="form-control-file" multiple>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="privacy" id="inlineRadio1" required value="private">
+                    <label class="form-check-label" id="private" for="inlineRadio1">Private (only you can see this entry)</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="privacy" id="inlineRadio2" required value="public">
+                    <label class="form-check-label" id="public" for="inlineRadio2">Public (anyone can see this entry)</label>
+                </div>
+                <div class="form-group" style="padding:15px">
+                    <label style="font-weight:1000">*Note that entries can only be edited the day they are written*</label>
+                    <br>
+                    <button type="submit" name="submitBtn" value="write" class="btn btn-lg btn-primary">Post</button>
+                </div>
+
+            {% endif %}
+
+        </form>
+    </div>
+
+
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dear Diary - Settings
+{% endblock %}
+
+{% block body %}
+    
+    <h1 style="text-align:center;padding:10px">Settings</h1>
+
+    <h5 style="text-align:center">Username - {{ session.get("username") }}</h5>
+
+    <div class="container" style="text-align:center;">
+        <h4>Change background color</h4>
+        <button class="btn btn-outline-danger colorChange" style="box-shadow: 2px 3px;" data-color="#ffcccb">Red</button>
+        <button class="btn btn-outline-primary colorChange" style="box-shadow: 2px 3px;" data-color="#6ae4fc">Blue</button>
+        <button class="btn btn-outline-success colorChange" style="box-shadow: 2px 3px;" data-color="#83fc87">Green</button>
+    </div>
+
+    <div class="container" style="text-align:center;padding:20px">
+        <h4>Change font</h4>
+        <button class="btn btn-outline-dark fontChange" style="box-shadow: 2px 3px;font-family:Playfair Display" data-font="Playfair Display">Playfair Display</button>
+        <button class="btn btn-outline-dark fontChange" style="box-shadow: 2px 3px;font-family:Quicksand" data-font="Quicksand">Quicksand</button>
+        <button class="btn btn-outline-dark fontChange" style="box-shadow: 2px 3px;font-family:Dancing Script" data-font="Dancing Script">Dancing Script</button>
+        <button class="btn btn-outline-dark fontChange" style="box-shadow: 2px 3px;font-family:Ubuntu" data-font="Ubuntu">Ubuntu</button>
+    </div>
+
+    <div class="container" style="text-align:center;padding:20px">
+        <h4>Change username</h4>
+        <form action="{{ url_for('settings') }}" method="POST">
+            <input type="text" style="width:400px" name="username" placeholder="Enter a new username" required>
+            <br>
+            <div style="padding:2px">
+                <button class="btn btn-sm btn-secondary" name="submitBtn" value="username" type="submit">Change</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container" style="text-align:center;padding:10px;padding-bottom:100px;">
+        <h4>Change password</h4>
+        <form control action="{{ url_for('settings') }}" method="POST">
+            <input type="password" style="width:400px" name="oldPass" placeholder="Enter current password" required>
+            <br>
+            <input type="password" style="width:400px" name="newPass1" placeholder="Enter new password" required>
+            <br>
+            <input type="password" style="width:400px" name="newPass2" placeholder="Re-enter password" required>
+            <br>
+            <div style="padding:2px">
+                <button class="btn btn-sm btn-secondary" name="submitBtn" value="password" type="submit">Change</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+
+        document.querySelectorAll('.colorChange').forEach(button => {
+            button.onclick = () => {
+                const color = button.dataset.color;
+                document.body.style.background = color;
+                window.localStorage.setItem('bgColor', color)
+            };
+        });
+
+        document.querySelectorAll('.fontChange').forEach(button => {
+            button.onclick = () => {
+                const font = button.dataset.font;
+                document.body.style.fontFamily = font;
+                window.localStorage.setItem('font', font)
+            };
+        });
+
+    </script>
+
+{% endblock %}
