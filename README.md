@@ -1,4 +1,4 @@
-# Diary Website - CS50 Web Final Project
+# Social Diary Website - CS50 Web Final Project
 
 This project is a full-stack web application built using Python (Flask), JavaScript, PostgreSQL and HTML/CSS. It allows users to create an account, log in, and share their diary entries with others. Users can upload diary entries along with media, set their profile to public or private, and edit their posts.
 
